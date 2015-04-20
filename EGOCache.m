@@ -364,7 +364,7 @@ static inline NSString* cachePathForKey(NSString* directory, NSString* key) {
 
 -(NSURL*) fileURLForKey:(NSString *)key
 {
-    return [NSURL fileURLWithPath:[self pathForKey:key]];
+    return [NSURL fileURLWithPath:cachePathForKey(_directory, key)];
 }
 
 -(NSURL*) cacheDirectory
@@ -372,14 +372,14 @@ static inline NSString* cachePathForKey(NSString* directory, NSString* key) {
     return [NSURL URLWithString:_directory];
 }
 
-
 -(void) setData:(NSData * __nonnull)data forKey:(NSString * __nonnull)key withTimeoutInterval:(NSTimeInterval)timeoutInterval completitionBlock:(void (^)())completitionBlock
 {
     CHECK_FOR_EGOCACHE_PLIST();
     
     NSString* cachePath = cachePathForKey(_directory, key);
     
-    dispatch_async(_diskQueue, ^{
+    dispatch_async(_diskQueue, ^
+    {
         [data writeToFile:cachePath atomically:YES];
         
         if(completitionBlock)

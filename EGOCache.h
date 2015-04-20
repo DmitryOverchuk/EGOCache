@@ -85,7 +85,7 @@
 - (void)setObject:(nonnull id<NSCoding>)anObject forKey:(NSString* __nonnull)key withTimeoutInterval:(NSTimeInterval)timeoutInterval;
 
 @property(nonatomic) NSTimeInterval defaultTimeoutInterval; // Default is 1 day
-
+ 
 
 -(NSURL*)fileURLForKey:(NSString*)key;
 
