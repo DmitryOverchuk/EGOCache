@@ -234,15 +234,7 @@ static inline NSString* cachePathForKey(NSString* directory, NSString* key) {
 }
 
 - (void)setData:(NSData*)data forKey:(NSString*)key withTimeoutInterval:(NSTimeInterval)timeoutInterval {
-	CHECK_FOR_EGOCACHE_PLIST();
-	
-	NSString* cachePath = cachePathForKey(_directory, key);
-	
-	dispatch_async(_diskQueue, ^{
-		[data writeToFile:cachePath atomically:YES];
-	});
-	
-	[self setCacheTimeoutInterval:timeoutInterval forKey:key];
+    [self setData:data forKey:key withTimeoutInterval:timeoutInterval completitionBlock:nil];
 }
 
 - (void)setNeedsSave {
@@ -368,6 +360,35 @@ static inline NSString* cachePathForKey(NSString* directory, NSString* key) {
 
 - (void)setObject:(id<NSCoding>)anObject forKey:(NSString*)key withTimeoutInterval:(NSTimeInterval)timeoutInterval {
 	[self setData:[NSKeyedArchiver archivedDataWithRootObject:anObject] forKey:key withTimeoutInterval:timeoutInterval];
+}
+
+-(NSURL*) fileURLForKey:(NSString *)key
+{
+    return [NSURL fileURLWithPath:[self pathForKey:key]];
+}
+
+-(NSURL*) cacheDirectory
+{
+    return [NSURL URLWithString:_directory];
+}
+
+
+-(void) setData:(NSData * __nonnull)data forKey:(NSString * __nonnull)key withTimeoutInterval:(NSTimeInterval)timeoutInterval completitionBlock:(void (^)())completitionBlock
+{
+    CHECK_FOR_EGOCACHE_PLIST();
+    
+    NSString* cachePath = cachePathForKey(_directory, key);
+    
+    dispatch_async(_diskQueue, ^{
+        [data writeToFile:cachePath atomically:YES];
+        
+        if(completitionBlock)
+        {
+            completitionBlock();
+        }
+    });
+    
+    [self setCacheTimeoutInterval:timeoutInterval forKey:key];
 }
 
 @end
